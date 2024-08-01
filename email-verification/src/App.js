@@ -5,37 +5,43 @@ import './App.css';
 const App = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState('');
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const token = queryParams.get('token');
+    setToken(token);
 
-    const verifyEmail = async () => {
-      if (!token) {
-        setMessage('No token provided');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${token}`);
-        setMessage(response.data.message);
-      } catch (error) {
-        setMessage(error.response ? error.response.data.message : 'Error verifying email');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifyEmail();
+    if (!token) {
+      setMessage('No token provided');
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
   }, []);
+
+  const handleVerification = async () => {
+    try {
+      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${token}`);
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage(error.response ? error.response.data.message : 'Error verifying email');
+    }
+  };
 
   return (
     <div className="App">
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <p>{message}</p>
+        <div>
+          <p>{message}</p>
+          {token && (
+            <button onClick={handleVerification}>
+              Verify Email
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
