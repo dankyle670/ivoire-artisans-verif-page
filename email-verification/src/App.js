@@ -9,13 +9,14 @@ const App = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    const token = queryParams.get('token');
-    setToken(token);
+    const tokenFromUrl = queryParams.get('token');
+    console.log('Token from URL:', tokenFromUrl); // Debugging
 
-    if (!token) {
+    if (!tokenFromUrl) {
       setMessage('No token provided');
       setLoading(false);
     } else {
+      setToken(tokenFromUrl);
       setLoading(false);
     }
   }, []);
@@ -24,7 +25,7 @@ const App = () => {
     setLoading(true);
     try {
       console.log('Verifying token:', token);
-      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/.netlify/functions/api/verify-email?token=${token}`);
+      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${token}`);
       console.log('Verification response:', response.data);
       setMessage(response.data.message);
     } catch (error) {
@@ -42,10 +43,12 @@ const App = () => {
       ) : (
         <div>
           <p>{message}</p>
-          {token && (
+          {token ? (
             <button onClick={handleVerification}>
               Verify Email
             </button>
+          ) : (
+            <p>No token available to verify.</p>
           )}
         </div>
       )}
