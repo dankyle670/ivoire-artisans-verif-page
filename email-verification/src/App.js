@@ -21,11 +21,17 @@ const App = () => {
   }, []);
 
   const handleVerification = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${token}`);
+      console.log('Verifying token:', token);
+      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/.netlify/functions/api/verify-email?token=${token}`);
+      console.log('Verification response:', response.data);
       setMessage(response.data.message);
     } catch (error) {
+      console.error('Error verifying email:', error);
       setMessage(error.response ? error.response.data.message : 'Error verifying email');
+    } finally {
+      setLoading(false);
     }
   };
 
