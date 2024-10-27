@@ -5,36 +5,33 @@ import './App.css';
 const App = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState('');
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const tokenFromUrl = queryParams.get('token');
-    console.log('Token from URL:', tokenFromUrl); // Debugging
+    const verifyEmailToken = async () => {
+      const queryParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = queryParams.get('token');
+      console.log('Token from URL:', tokenFromUrl);
 
-    if (!tokenFromUrl) {
-      setMessage('No token provided');
-      setLoading(false);
-    } else {
-      setToken(tokenFromUrl);
-      setLoading(false);
-    }
+      if (!tokenFromUrl) {
+        setMessage('No token provided');
+        setLoading(false);
+      } else {
+        try {
+          console.log('Verifying token:', tokenFromUrl);
+          const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${tokenFromUrl}`);
+          console.log('Verification response:', response.data);
+          setMessage(response.data.message);
+        } catch (error) {
+          console.error('Error verifying email:', error);
+          setMessage(error.response ? error.response.data.message : 'Error verifying email');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    verifyEmailToken();
   }, []);
-
-  const handleVerification = async () => {
-    setLoading(true);
-    try {
-      console.log('Verifying token:', token);
-      const response = await axios.get(`https://ivoire-artisans-server.netlify.app/api/verify-email?token=${token}`);
-      console.log('Verification response:', response.data);
-      setMessage(response.data.message);
-    } catch (error) {
-      console.error('Error verifying email:', error);
-      setMessage(error.response ? error.response.data.message : 'Error verifying email');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="App">
@@ -43,13 +40,6 @@ const App = () => {
       ) : (
         <div>
           <p>{message}</p>
-          {token ? (
-            <button onClick={handleVerification}>
-              Verify Email
-            </button>
-          ) : (
-            <p>No token available to verify.</p>
-          )}
         </div>
       )}
     </div>
