@@ -1,0 +1,7 @@
+[build]
+  publish = "public"  #
+
+[[redirects]]
+  from = "/*"
+  to = "/verif-page.html"
+  status = 200
